@@ -1,0 +1,48 @@
+body {
+    font-family: Lato, sans-serif;
+    font-size: 10pt
+}
+
+.hidden {
+    display: none
+}
+
+commentary {
+    margin: 0 0;
+    display: block;
+    overflow: hidden;
+    -webkit-transition: all .5s cubic-bezier(.42, 0, .16, 1.66);
+    -o-transition: all .5s cubic-bezier(.42, 0, .16, 1.66);
+    -moz-transition: all .5s cubic-bezier(.42, 0, .16, 1.66);
+    transition: all .5s cubic-bezier(.42, 0, .16, 1.66)
+}
+
+commentary h1{
+    -webkit-transition: background 0.7s ease-in-out;
+    -o-transition: background 0.7s ease-in-out;
+    -moz-transition: background 0.7s ease-in-out;
+    transition: background 0.7s ease-in-out;   
+}
+
+commentary.active {
+    display: block
+}
+
+commentary.hidden {
+    display: block;
+    height: 0 !important;
+    opacity: 0;
+    -webkit-transition-timing-function: ease-in-out;
+    -moz-transition-timing-function: ease-in-out;
+    -o-transition-timing-function: ease-in-out;
+    transition-timing-function: ease-in-out
+}
+
+commentary.active.highlight h1{
+    background: #e24f4f;
+    color: white;
+}
+
+commentary.active.highlight h1 a{
+    color: white;
+}

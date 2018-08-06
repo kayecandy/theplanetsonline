@@ -1,0 +1,6 @@
+Options +FollowSymLinks
+RewriteEngine On
+
+
+RewriteRule ^$ commentary-template.php [L]
+RewriteRule  ^template_(.*)$ commentary-template.php?commentary_file=$1 [NC,L]
