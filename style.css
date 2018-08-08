@@ -381,10 +381,15 @@ body{
 		
 	}
 
-	#cndce-video-section{
+	#cndce-container  #cndce-video-section{
 		min-width: unset !important;
 		max-width: unset !important;
+
+		-webkit-flex-basis: 50%;
+		    -ms-flex-preferred-size: 50%;
+		        flex-basis: 50%;
 	}
+
 
 	#cndce-video-section .cndce-resize[data-resize="x"]{
 		display: none;
@@ -732,6 +737,39 @@ body{
 	#cndce-iframe-section .cndce-browser-tab:nth-child(3){
 		display: none;
 	}
+
+	#cndce-iframe-section .cndce-browser-top{
+		display: -webkit-box;
+		display: -webkit-flex;
+		display: -moz-box;
+		display: -ms-flexbox;
+		display: flex;
+
+		-webkit-flex-wrap: nowrap;
+		    -ms-flex-wrap: nowrap;
+		        flex-wrap: nowrap;
+	}
+
+	#cndce-iframe-section .cndce-browser-top .cndce-browser-address{
+		flex-grow: 1;
+	}
+	#cndce-iframe-section .cndce-browser-top .cndce-browser-address:hover{
+		left: 0;
+	}
+
+	#cndce-iframe-section .cndce-browser-top .cndce-browser-options{
+		flex-grow: 0;
+		margin-left: 10px;
+	}
+
+	#cndce-iframe-section .cndce-browser-option.cndce-share,
+	#cndce-iframe-section .cndce-browser-option.cndce-update{
+		margin-right: 3px;
+	}
+
+	#cndce-iframe-section .cndce-browser-option.cndce-icon span{
+		display: none;
+	}
 }
 
 @media only screen and (max-width: 768px){
@@ -782,6 +820,7 @@ body{
 
 	#cndce-iframe-section .cndce-browser-option.cndce-share{
 		margin: 0;
+		display: inline-block;
 	}
 
 	#cndce-iframe-section .cndce-browser-option.cndce-update{
@@ -789,29 +828,12 @@ body{
 	}
 }
 
-
-@media only screen and (max-width: 600px){
-	#cndce-iframe-section .cndce-browser-top{
-		height: 44px;
+@media only screen and (max-width: 450px){
+	#cndce-iframe-section .cndce-browser-option.cndce-share{
+		display: none;
 	}
-	#cndce-iframe-section .cndce-browser-top .cndce-browser-address,
-	#cndce-iframe-section .cndce-browser-top .cndce-browser-icon,
-	#cndce-iframe-section .cndce-browser-top .cndce-browser-options{
-		height: 22px;
-	}
-
-	#cndce-iframe-section .cndce-browser-top .cndce-browser-options{
-		width: 100%;
-	}
-
-	#cndce-iframe-section .cndce-browser-top .cndce-browser-address{
-		width: -webkit-calc(100% - 36px);
-		width: -moz-calc(100% - 36px);
-		width: calc(100% - 36px);
-	}
-
-
 }
+
 
 
 

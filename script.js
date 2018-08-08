@@ -7,7 +7,7 @@ $(document).ready(function(){
 
 	// Variables
 	var cndceSettings;
-	var activePlayer;
+	var activePlayer = undefined;
 
 	var $commentaries;
 	var $commentariesHtml;
@@ -74,6 +74,8 @@ $(document).ready(function(){
 	// Get Parameters
 	var getParamCommentaries;
 	var getParamVideo;
+	var getParamStartTime;
+	var getParamConfig;
 
 
 	function isLayoutMobile(){
@@ -109,8 +111,11 @@ $(document).ready(function(){
 
 
 	function playerSeekTo(sec){
-		activePlayer.playVideo();
+		// activePlayer.playVideo();
+		// activePlayer.pauseVideo();
 		activePlayer.seekTo(sec, true);
+		// activePlayer.pauseVideo();
+
 	}
 
 	function getTimeStringToSeconds(timeString){
@@ -174,6 +179,10 @@ $(document).ready(function(){
 
 		getParamVideo = getParameter('video');
 
+		getParamStartTime = getParameter('start');
+
+		getParamConfig = getParameter('config');
+
 	}
 
 	function initVideos(){
@@ -185,16 +194,27 @@ $(document).ready(function(){
 
 			$videosContainer.append($videoDiv);
 
+			var playerVars = {
+				'autoplay': 0,
+				'playsinline': 1,
+				'rel': 0
+			};
+
+			var events = {
+				'onReady': onPlayerReady,
+				'onStateChange': onPlayerStateChange,
+				'onPlaybackRateChange': onPlayerPlaybackRateChange
+			};
+
+			// Add start time if get param exists
+			if(getParamStartTime != undefined && getParamStartTime != ''){
+				playerVars.start = getTimeStringToSeconds(getParamStartTime);
+			}
+
 			var videoPlayer = new YT.Player(videoID, {
 				videoId: cndceSettings.videos[i].id,
-				playerVars:{
-					'autoplay': 0
-				},
-				events: {
-					'onReady': onPlayerReady,
-					'onStateChange': onPlayerStateChange,
-					'onPlaybackRateChange': onPlayerPlaybackRateChange
-				}
+				playerVars: playerVars,
+				events: events
 			});
 
 
@@ -468,13 +488,15 @@ $(document).ready(function(){
 			currentTime = activePlayer.getCurrentTime();
 			currentPlaybackRate = activePlayer.getPlaybackRate();
 			currentState = activePlayer.getPlayerState();
+
+
 		}
 
 
 		activePlayer = video.player;
 		$(activePlayer.getIframe()).addClass('active');
 
-		if(activePlayer.seekTo != undefined)
+		if(currentTime != 0)
 			activePlayer.seekTo(currentTime);
 
 		if(activePlayer.setPlaybackRate != undefined)
@@ -747,6 +769,7 @@ $(document).ready(function(){
 		var deltaY = -(mouseY - pageY) / 2;
 		
 
+		console.log( $sectionResizeTarget );
 
 
 		if($cndceContainer.attr('data-resize') == 'x'){
@@ -844,7 +867,7 @@ $(document).ready(function(){
 
 
 			resizeVideoX();
-
+			resizeVideoY(); // To give video min/max-width
 
 
 			// Check minimum sizes
@@ -992,7 +1015,7 @@ $(document).ready(function(){
 
 					// If on mobile, open on a new tab as well
 					if(isLayoutMobile()){
-						window.open(urlText);
+						window.open($this.attr('href'));
 					}
 				}
 					
@@ -1031,6 +1054,14 @@ $(document).ready(function(){
 	})
 
 
+	// Restore previous size
+	loadSectionSizesFromCookie();
+	initGetParameters();
+
+	if(getParamConfig != undefined && getParamConfig != ''){
+		SETTINGS_URL = getParamConfig;
+	}
+
 
 	$.ajax({
 		url: SETTINGS_URL,
@@ -1053,8 +1084,6 @@ $(document).ready(function(){
 	})
 
 
-	// Restore previous size
-	loadSectionSizesFromCookie();
-	initGetParameters();
+	
 
 })
