@@ -82,6 +82,10 @@ $(document).ready(function(){
 		return $body.width() <= 768;
 	}
 
+	function isLayoutPortrait(){
+		return $body.width() < $body.height();
+	}
+
 	function isVideoWithinMinWidth(){
 		return $videoSection.width() > cndceSettings.minSizes.video.width;
 	}
@@ -545,6 +549,16 @@ $(document).ready(function(){
 		})
 	}
 
+	function resizeVideoPortrait(){
+		var width = $videoSection.width();
+		var targetHeight = (width / cndceSettings.videoAspectRatio.width) * cndceSettings.videoAspectRatio.height;
+
+
+		$videoSection.css({
+			'max-height': targetHeight,
+			'min-height': targetHeight
+		})
+	}
 
 
 
@@ -935,7 +949,9 @@ $(document).ready(function(){
 		}else{
 			$videoSection.css({
 				'min-width': '',
-				'max-width': ''
+				'max-width': '',
+				'max-height': '',
+				'min-height': ''
 			})
 
 
@@ -943,6 +959,11 @@ $(document).ready(function(){
 				'max-height': '',
 				'min-height': ''
 			})
+
+
+			if(isLayoutPortrait()){
+				resizeVideoPortrait();
+			}
 
 		}
 
