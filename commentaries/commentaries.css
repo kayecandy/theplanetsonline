@@ -39,10 +39,10 @@ commentary.hidden {
 }
 
 commentary.active.highlight h1{
-    background: #e24f4f;
-    color: white;
+    background: #f3fb53;
+    color: black;
 }
 
 commentary.active.highlight h1 a{
-    color: white;
+    color: black;
 }
