@@ -120,7 +120,6 @@ $(document).ready(function(){
 		var videoHeight = $commentariesSection.height();
 		var videoAspect = videoWidth / videoHeight;
 
-		console.log(videoWidth, videoHeight ,videoAspect);
 
 		return videoAspect >= cndceSettings.smartRelayout.minVideoAspectRatio && videoAspect <= cndceSettings.smartRelayout.maxVideoAspectRatio;
 	}
@@ -1083,7 +1082,7 @@ $(document).ready(function(){
 
 		// $commentariesActiveSpan.text(0);
 		$commentariesActiveSpan.text($('input:checked', $optionsCommentaries).length);
-		
+
 		$commentariesTotalSpan.text(cndceSettings.commentaries.length - 1);
 
 

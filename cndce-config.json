@@ -13,7 +13,7 @@
 		}
 	},
 	"smartRelayout":{
-		"minVideoAspectRatio": 1,
+		"minVideoAspectRatio": 0.5,
 		"maxVideoAspectRatio": 2
 	},
 	"videoAspectRatio":{
