@@ -12,6 +12,10 @@
 		 	"height": 200
 		}
 	},
+	"smartRelayout":{
+		"minVideoAspectRatio": 1,
+		"maxVideoAspectRatio": 2
+	},
 	"videoAspectRatio":{
 		"width": 16,
 		"height": 9

@@ -41,6 +41,7 @@ $(document).ready(function(){
 
 
 	var $iframeSection = $('#cndce-iframe-section');
+	var $iframeBrowserContainer = $('#cndce-browser-container', $iframeSection);
 	var $iframeBrowserAddress = $('.cndce-browser-address', $iframeSection);
 	var $iframeBrowserAddressInput = $('input', $iframeBrowserAddress);
 	var $iframeBrowserTab = $('.cndce-browser-tab.active', $iframeSection)
@@ -54,7 +55,7 @@ $(document).ready(function(){
 
 	var $commentariesSection = $('#cndce-commentary-section');
 	var $commentariesIframe = $('#cndce-commentary-iframe', $commentariesSection);
-	var $commentariesScrollContainer = $('.cndce-iframe-scroll-container', $commentariesSection);
+	var $commentariesScrollContainer = $('#cndce-commentary-iframe-container', $commentariesSection);
 
 
 
@@ -91,16 +92,10 @@ $(document).ready(function(){
 	}
 
 	function isCommentaryIframeWithinMinWidth(){
-		if(!($commentariesSection.width() > cndceSettings.minSizes.commentIframe.width)){
-			console.log('commen min width')
-		}
 		return $commentariesSection.width() > cndceSettings.minSizes.commentIframe.width;
 	}
 
 	function isCommentaryIframeWithinMinHeight(){
-		if(!($commentariesSection.height() > cndceSettings.minSizes.commentIframe.height)){
-			console.log('commen min height')
-		}
 		return $commentariesSection.height() > cndceSettings.minSizes.commentIframe.height;
 	}
 
@@ -117,6 +112,17 @@ $(document).ready(function(){
 
 	function isSizeWithinMinimumsY(){
 		return isSizeWithinMinimumsX();
+	}
+
+
+	function isVideoWithinSmartRelayoutAspect(){
+		var videoWidth = $commentariesSection.width();
+		var videoHeight = $commentariesSection.height();
+		var videoAspect = videoWidth / videoHeight;
+
+		console.log(videoWidth, videoHeight ,videoAspect);
+
+		return videoAspect >= cndceSettings.smartRelayout.minVideoAspectRatio && videoAspect <= cndceSettings.smartRelayout.maxVideoAspectRatio;
 	}
 
 
@@ -253,49 +259,49 @@ $(document).ready(function(){
 			commentaryCookie = commentaryCookie.split(',');
 		}
 
+
 		for(var i=1; i < cndceSettings.commentaries.length; i++){
 
-			// Add commentary tags
-			// TODO: Organize style
-			var $tag = $(document.createElement('a'));
+			
+			if(!$('a', $commentariesTagsSpan).hasClass(cndceSettings.commentaries[i].type)){
+				// Add commentary tags
+				// TODO: Organize style
+				var $tag = $(document.createElement('a'));
 
-			$tag.addClass(cndceSettings.commentaries[i].type);
-			$tag.addClass('hidden');
-			$tag.addClass('cndce-open-options');
-			$tag.text(cndceSettings.commentaries[i].name);
-			$tag.css({'margin-right': '3px'});
+				$tag.addClass(cndceSettings.commentaries[i].type);
+				$tag.addClass('hidden');
+				$tag.addClass('cndce-open-options');
+				$tag.text(cndceSettings.commentaries[i].name);
+				$tag.css({'margin-right': '3px'});
 
-			$commentariesTagsSpan.append($tag)
-
-
-
-			// Add commentary to option
-			var $commentaryOption = $optionsCommentaryTemplate.clone(true);
-			$('.cndce-options-commentary-name', $commentaryOption).text(cndceSettings.commentaries[i].description);
-
-			var $inputCommentaryOption = $('input', $commentaryOption);
-
-			$inputCommentaryOption.data('icommentary', i);
-			$inputCommentaryOption.attr('data-commentary-type', cndceSettings.commentaries[i].type);
+				$commentariesTagsSpan.append($tag)
 
 
-			$optionsCommentaries.append($commentaryOption);
+				// Add commentary to option
+				var $commentaryOption = $optionsCommentaryTemplate.clone(true);
+				$('.cndce-options-commentary-name', $commentaryOption).text(cndceSettings.commentaries[i].description);
+
+				var $inputCommentaryOption = $('input', $commentaryOption);
+
+				$inputCommentaryOption.data('icommentary', i);
+				$inputCommentaryOption.attr('data-commentary-type', cndceSettings.commentaries[i].type);
 
 
-			cndceSettings.commentaries[i].$inputBox = $commentaryOption;
+				$optionsCommentaries.append($commentaryOption);
 
 
+				cndceSettings.commentaries[i].$inputBox = $commentaryOption;
 
+				// Load Cookie and Get Parameter
+				if(getParamCommentaries.indexOf(cndceSettings.commentaries[i].type) != -1
+					|| (getParamCommentaries.length == 0 && commentaryCookie.indexOf(cndceSettings.commentaries[i].type) != -1)
+				){
+					// loadCommentaries(cndceSettings.commentaries[i]);
+					$inputCommentaryOption.prop('checked', true);
+					$inputCommentaryOption.trigger('change');
 
-			// Load Cookie and Get Parameter
-			if(getParamCommentaries.indexOf(cndceSettings.commentaries[i].type) != -1
-				|| (getParamCommentaries.length == 0 && commentaryCookie.indexOf(cndceSettings.commentaries[i].type) != -1)
-			){
-				// loadCommentaries(cndceSettings.commentaries[i]);
-				$inputCommentaryOption.prop('checked', true);
-				$inputCommentaryOption.trigger('change');
-
-			}
+				}
+			}	
 
 
 		}
@@ -321,8 +327,11 @@ $(document).ready(function(){
 			return false;
 
 
-		if(commentary.isLoaded != undefined && commentary.isLoaded)
-			return false;
+		if(commentary.isLoaded != undefined && commentary.isLoaded){
+			return false;			
+		}
+
+
 
 		var commentaryUrl = cndceSettings.commentariesBaseUrl + commentary.url;
 
@@ -706,6 +715,8 @@ $(document).ready(function(){
 	})
 
 	$optionsCommentaries.on('change', 'input', function(){
+
+		console.log('changed');
 		var $this = $(this);
 
 		var iCommentary = $this.data('icommentary');
@@ -789,8 +800,6 @@ $(document).ready(function(){
 		var deltaY = -(mouseY - pageY) / 2;
 		
 
-		console.log( $sectionResizeTarget );
-
 
 		if($cndceContainer.attr('data-resize') == 'x'){
 			var targetWidth = $sectionResizeTarget.width();
@@ -808,8 +817,6 @@ $(document).ready(function(){
 					'max-width': targetWidth + 'px',
 					'min-width': targetWidth + 'px'
 				})
-
-				console.log('go back resize');
 
 				resizeVideoX();
 			}
@@ -841,8 +848,45 @@ $(document).ready(function(){
 		saveSectionSizesToCookie();
 
 
+		
+
+
 		e.preventDefault();
 
+	})
+
+
+	// Smart Relayout
+	$cndceContainer.on('mousemove touchmove', function(e){
+		if(!$cndceContainer.hasClass('resizing'))
+			return;
+
+
+		// Within Smart Relayout Aspect
+		if(isVideoWithinSmartRelayoutAspect()){
+
+			if(!$cndceContainer.hasClass('cndce-relayout')){
+				$cndceContainer.addClass('cndce-relayout');
+
+
+				$commentariesSection.append($iframeBrowserContainer);
+				$iframeSection.append($commentariesScrollContainer);
+
+
+			}
+
+
+
+		// Not Within Smart Relayout Aspect
+		}else{
+			if($cndceContainer.hasClass('cndce-relayout')){			
+				$cndceContainer.removeClass('cndce-relayout');
+
+				$iframeSection.append($iframeBrowserContainer);
+				$commentariesSection.append($commentariesScrollContainer);
+			}
+			
+		}
 	})
 
 	$sectionResizeDiv.on('mousedown touchstart',function(e){
@@ -942,8 +986,10 @@ $(document).ready(function(){
 			}
 
 
-
 			// resizeVideoY();
+
+
+			
 
 
 		}else{
@@ -1004,7 +1050,25 @@ $(document).ready(function(){
 		if(cndceSettings == undefined)
 			return;
 
-		$commentariesHtml = $($commentariesIframe[0].contentWindow.document);
+
+
+
+		if(!$cndceContainer.hasClass('cndce-commentary-loaded')){
+
+			$cndceContainer.addClass('cndce-commentary-loaded');
+
+			$commentariesHtml = $($commentariesIframe[0].contentWindow.document);
+
+		}else{
+			$newCommentariesHtml = $($commentariesIframe[0].contentWindow.document);
+
+			$('body', $newCommentariesHtml).html($('body', $commentariesHtml).children());
+
+			$commentariesHtml = $newCommentariesHtml;
+
+			// console.log($commentariesIframe[0].contentWindow.document);
+		}
+
 
 		$commentaries = $('commentary', $commentariesHtml);
 
@@ -1017,7 +1081,9 @@ $(document).ready(function(){
 		$commentariesTagsSpan = $('#welcome-commentary .commentary-type-tags', $commentariesHtml);
 
 
-		$commentariesActiveSpan.text(0);
+		// $commentariesActiveSpan.text(0);
+		$commentariesActiveSpan.text($('input:checked', $optionsCommentaries).length);
+		
 		$commentariesTotalSpan.text(cndceSettings.commentaries.length - 1);
 
 
@@ -1072,6 +1138,7 @@ $(document).ready(function(){
 		})
 
 	});
+
 
 
 
