@@ -87,6 +87,10 @@ $(document).ready(function(){
 		return $body.width() < $body.height();
 	}
 
+	function isLayoutRelayout(){
+		return $cndceContainer.hasClass('cndce-relayout');
+	}
+
 	function isVideoWithinMinWidth(){
 		return $videoSection.width() > cndceSettings.minSizes.video.width;
 	}
@@ -99,6 +103,10 @@ $(document).ready(function(){
 		return $commentariesSection.height() > cndceSettings.minSizes.commentIframe.height;
 	}
 
+	function isBrowserIframeWithinMinWidth(){
+		return $iframeSection.width() > cndceSettings.minSizes.browserIframe.width;
+	}
+
 	function isBrowserIframeWithinMinHeight(){
 		return $iframeSection.height() > cndceSettings.minSizes.browserIframe.height;
 	}
@@ -106,6 +114,7 @@ $(document).ready(function(){
 	function isSizeWithinMinimumsX(){
 		return isCommentaryIframeWithinMinWidth()
 			// && isCommentaryIframeWithinMinHeight()
+			// && isBrowserIframeWithinMinWidth()
 			&& isBrowserIframeWithinMinHeight()
 			&& isVideoWithinMinWidth();
 	}
@@ -122,6 +131,19 @@ $(document).ready(function(){
 
 
 		return videoAspect >= cndceSettings.smartRelayout.minVideoAspectRatio && videoAspect <= cndceSettings.smartRelayout.maxVideoAspectRatio;
+	}
+
+	function isVideoWithinSmartRelayoutBounds(){
+		// var boundary = cndceSettings.smartRelayoutBoundary;
+		var boundary = cndceSettings.minSizes.browserIframe.width;
+		// var videoWidth = $videoSection.width();
+		var videoWidth = $cndceContainer.width() - $videoSection.width();
+
+		// if(boundary.indexOf('%') != 0){
+		// 	boundary = $cndceContainer.width() * (parseFloat(boundary) / 100);
+		// }
+
+		return videoWidth > boundary;
 	}
 
 
@@ -596,6 +618,69 @@ $(document).ready(function(){
 	}
 
 
+	function doSmartRelayout(){
+		// Within Smart Relayout Bounds
+		if(isVideoWithinSmartRelayoutBounds()){
+
+			if(!$cndceContainer.hasClass('cndce-relayout')){
+				$cndceContainer.addClass('cndce-relayout');
+
+				// WRONG RELAYOUT
+				// $commentariesSection.append($iframeBrowserContainer);
+				// $iframeSection.append($commentariesScrollContainer);
+
+			}
+
+			var videoHeight = ($videoSection.width() / cndceSettings.videoAspectRatio.width) * cndceSettings.videoAspectRatio.height;
+
+
+			$videoInformation.css({
+				'min-width': $videoSection.css('min-width'),
+				'max-width': $videoSection.css('max-width')
+			});
+
+
+			$videoSection.css({
+				'min-height': videoHeight + 'px',
+				'max-height': videoHeight + 'px'
+			})
+
+			$iframeSection.css({
+				'min-height': 'unset',
+				'max-height': 'unset'
+			})
+
+
+		// Not Within Smart Relayout Bounds
+		}else{
+			if($cndceContainer.hasClass('cndce-relayout')){			
+				$cndceContainer.removeClass('cndce-relayout');
+
+				// WRONG RELAYOUT
+				// $iframeSection.append($iframeBrowserContainer);
+				// $commentariesSection.append($commentariesScrollContainer);
+
+				$videoInformation.css({
+					'min-width': '',
+					'max-width': ''
+				});
+
+
+				$commentariesSection.css({
+					'min-height': '',
+					'max-height': ''
+				})
+
+				$videoSection.css({
+					'min-height': '',
+					'max-height': ''
+				})
+			}
+			
+		}
+
+	}
+
 
 
 
@@ -855,38 +940,19 @@ $(document).ready(function(){
 	})
 
 
+
 	// Smart Relayout
 	$cndceContainer.on('mousemove touchmove', function(e){
+		
+
 		if(!$cndceContainer.hasClass('resizing'))
 			return;
 
 
-		// Within Smart Relayout Aspect
-		if(isVideoWithinSmartRelayoutAspect()){
-
-			if(!$cndceContainer.hasClass('cndce-relayout')){
-				$cndceContainer.addClass('cndce-relayout');
-
-
-				$commentariesSection.append($iframeBrowserContainer);
-				$iframeSection.append($commentariesScrollContainer);
-
-
-			}
-
-
-
-		// Not Within Smart Relayout Aspect
-		}else{
-			if($cndceContainer.hasClass('cndce-relayout')){			
-				$cndceContainer.removeClass('cndce-relayout');
-
-				$iframeSection.append($iframeBrowserContainer);
-				$commentariesSection.append($commentariesScrollContainer);
-			}
-			
-		}
+		doSmartRelayout();
 	})
+
+
 
 	$sectionResizeDiv.on('mousedown touchstart',function(e){
 		var $this = $(this);
@@ -916,9 +982,41 @@ $(document).ready(function(){
 	$(window).on('resize', function(){
 
 
+		doSmartRelayout();
+		
 
 		// Keep Video Aspect Ratio
-		if(!isLayoutMobile()){
+		if(isLayoutRelayout()){
+
+
+			if(!isCommentaryIframeWithinMinHeight()){
+				$commentariesSection.css({
+					'max-height': cndceSettings.minSizes.commentIframe.height + 'px'
+				});
+
+				$videoSection.css({
+					'min-height': '',
+					'max-height': ''
+				})
+
+				// Reassign min/max
+				$videoSection.css({
+					'min-width': $videoSection.width() + 'px',
+					'max-width': $videoSection.width() + 'px'
+				})
+
+				$commentariesSection.css({
+					'max-height': ''
+				});
+
+				resizeVideoY();
+
+				// Trigger Smart Relayout
+				doSmartRelayout();
+			}
+
+		}
+		else if(!isLayoutMobile()){
 			
 
 			// Minimum Sizes
@@ -991,7 +1089,9 @@ $(document).ready(function(){
 			
 
 
-		}else{
+		}
+
+		else{
 			$videoSection.css({
 				'min-width': '',
 				'max-width': '',
