@@ -619,6 +619,7 @@ $(document).ready(function(){
 
 
 	function doSmartRelayout(){
+
 		// Within Smart Relayout Bounds
 		if(isVideoWithinSmartRelayoutBounds()){
 
