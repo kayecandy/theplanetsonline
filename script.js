@@ -147,11 +147,15 @@ $(document).ready(function(){
 	}
 
 
-	function playerSeekTo(sec){
+	function playerSeekTo(sec, forcePlay){
 		// activePlayer.playVideo();
 		// activePlayer.pauseVideo();
 		activePlayer.seekTo(sec, true);
 		// activePlayer.pauseVideo();
+
+		if(forcePlay != undefined && forcePlay)
+			activePlayer.playVideo();
+
 
 	}
 
@@ -190,7 +194,18 @@ $(document).ready(function(){
 	        tmp = items[index].split("=");
 	        if (tmp[0] === parameterName) result = decodeURIComponent(tmp[1]);
 	    }
+
 	    return result;
+	}
+
+	function getCommentaryScrollable(){
+		var $scrollable = $commentariesHtml.find('body, html');
+
+		if($commentariesIframe.height() > $commentariesSection.height()){
+			$scrollable = $commentariesScrollContainer;
+		}
+
+		return $scrollable;
 	}
 
 
@@ -246,6 +261,7 @@ $(document).ready(function(){
 			// Add start time if get param exists
 			if(getParamStartTime != undefined && getParamStartTime != ''){
 				playerVars.start = getTimeStringToSeconds(getParamStartTime);
+				// playerVars.autoplay = 1;
 			}
 
 			var videoPlayer = new YT.Player(videoID, {
@@ -319,7 +335,20 @@ $(document).ready(function(){
 				){
 					// loadCommentaries(cndceSettings.commentaries[i]);
 					$inputCommentaryOption.prop('checked', true);
-					$inputCommentaryOption.trigger('change');
+					;
+
+					$.when($inputCommentaryOption.trigger('change')).done(function(){
+						// Reload commentary scrolltop
+						var $scrollable = getCommentaryScrollable();
+						var commentaryScrollCookie = getCookie('cndceCommentariesScroll');
+
+
+						console.log(commentaryScrollCookie, $scrollable);
+						console.log($scrollable[0].scrollHeight);
+
+						$scrollable.scrollTop(commentaryScrollCookie);
+
+					})
 
 				}
 			}	
@@ -329,6 +358,10 @@ $(document).ready(function(){
 
 		// First commentary available by default
 		loadCommentaries(cndceSettings.commentaries[0]);
+
+
+
+		
 
 	}
 
@@ -458,14 +491,9 @@ $(document).ready(function(){
 		// $commentariesHtml.scrollTop($commentary.offset().top);
 
 
-		var $scrollable = $commentariesHtml.find('body, html');
+		var $scrollable = getCommentaryScrollable();
 
-		if($commentariesIframe.height() > $commentariesSection.height()){
-			$scrollable = $commentariesScrollContainer;
-		}
-
-		// alert($commentariesIframe.height() + " " + $commentariesSection.height());
-
+		// alert($scrollable.attr('id'));
 		$scrollable.animate({scrollTop: $commentary.offset().top}, 300);
 
 
@@ -544,7 +572,6 @@ $(document).ready(function(){
 
 		if(currentState == YT.PlayerState.PLAYING){
 			activePlayer.playVideo();
-			console.log('play video');
 		}
 	}
 
@@ -676,6 +703,8 @@ $(document).ready(function(){
 					'min-height': '',
 					'max-height': ''
 				})
+
+				resizeVideoX();
 			}
 			
 		}
@@ -741,6 +770,12 @@ $(document).ready(function(){
 
 		setActivePlayer(cndceSettings.videos[iVideo]);
 
+		if(getParamStartTime != undefined && getParamStartTime != ''
+			&& cndceSettings.videos[iVideo].player.playVideo != undefined){
+
+			cndceSettings.videos[iVideo].player.playVideo();
+		}
+
 	}
 
 	function onPlayerStateChange(e){
@@ -784,6 +819,8 @@ $(document).ready(function(){
 	})
 
 
+
+
 	$optionsContainer.click(function(e){
 		e.stopPropagation();
 	})
@@ -801,7 +838,6 @@ $(document).ready(function(){
 
 	$optionsCommentaries.on('change', 'input', function(){
 
-		console.log('changed');
 		var $this = $(this);
 
 		var iCommentary = $this.data('icommentary');
@@ -864,7 +900,6 @@ $(document).ready(function(){
 	})
 
 
-
 	// Section Resize Events
 	$cndceContainer.on('mousemove touchmove', function(e){
 		if(!$cndceContainer.hasClass('resizing'))
@@ -906,6 +941,17 @@ $(document).ready(function(){
 				resizeVideoX();
 			}
 		}else if($cndceContainer.attr('data-resize') == 'y'){
+
+			// Smart Relayout
+			if($cndceContainer.hasClass('cndce-relayout')){
+				$sectionResizeTarget = $videoSection;	
+
+				deltaY *= -1;
+			}else{
+				$sectionResizeTarget = $iframeSection;
+			}
+
+
 			var targetHeight = $sectionResizeTarget.height();
 
 
@@ -926,6 +972,8 @@ $(document).ready(function(){
 
 				resizeVideoY();
 			}
+
+			
 		}
 
 
@@ -937,7 +985,6 @@ $(document).ready(function(){
 
 
 		e.preventDefault();
-
 	})
 
 
@@ -984,6 +1031,8 @@ $(document).ready(function(){
 
 
 		doSmartRelayout();
+
+
 		
 
 		// Keep Video Aspect Ratio
@@ -1027,6 +1076,14 @@ $(document).ready(function(){
 
 			$iframeSection.css({
 				'min-height': cndceSettings.minSizes.browserIframe.height + 'px'
+			})
+
+
+
+			// Reset Values
+			$videoSection.css({
+				'min-height': '',
+				'max-height': ''
 			})
 
 
@@ -1224,7 +1281,7 @@ $(document).ready(function(){
 					timeSeconds = $this.attr('tref');
 
 
-				playerSeekTo(timeSeconds);
+				playerSeekTo(timeSeconds, true);
 			}
 
 			// if($this.attr('target') == 'tpo')
@@ -1235,6 +1292,13 @@ $(document).ready(function(){
 		// Open Options Box
 		$commentariesHtml.on('click', '.cndce-open-options', function(e){
 			$iframeBrowserOptionsButton.click();
+		})
+
+
+		// Commentaries Scroll Event
+		$commentariesHtml.add($commentariesScrollContainer).scroll(function(e){
+			document.cookie = "cndceCommentariesScroll=" + $(this).scrollTop();
+			document.cookie = "cndceCommentariesScrollHeight=" + $(this)[0].scrollHeight;
 		})
 
 	});
