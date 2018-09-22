@@ -40,6 +40,15 @@ foreach ($requiredExtensions as $requiredExtension) {
     }
 }
 
+
+function getHostFromUrl($url) {
+    $ret = parse_url($url, PHP_URL_SCHEME) . '://';
+    $ret .= parse_url($url, PHP_URL_HOST);
+    //$ret .= parse_url($url, PHP_URL_PATH) . '?';
+    //$ret .= parse_url($url, PHP_URL_QUERY);
+    return $ret;
+}
+
 //Helper function for use inside $whitelistPatterns.
 //Returns a regex that matches all HTTP[S] URLs for a given hostname.
 function getHostnamePattern($hostname) {
@@ -525,7 +534,29 @@ if (stripos($contentType, "text/html") !== false) {
         $prependElem->insertBefore($scriptElem, $prependElem->firstChild);
     }
 
-    echo "<!-- Proxified page constructed by miniProxy -->\n" . $doc->saveHTML();
+    $html = $doc->saveHTML();
+        
+    /*if (strpos($html, 'solarsystem.nasa.gov') !== false) {
+        //$html= preg_replace('#href="/(.+)"#', 'href="preview?='. $url . '/$1"', $html);
+        $html = preg_replace('#"/system/(.+)"#', '"//solarsystem.nasa.gov/system/$1"', $html);
+    }
+    
+    if (strpos($html, 'saturn.jpl.nasa.gov') !== false) {
+        //$html= preg_replace('#href="/(.+)"#', 'href="preview?='. $url . '/$1"', $html);
+        $html = preg_replace('#"/system/(.+)"#', '"//saturn.jpl.nasa.gov/system/$1"', $html);
+    }
+    
+    if (strpos($html, 'europa.nasa.gov') !== false) {
+        //$html= preg_replace('#href="/(.+)"#', 'href="preview?='. $url . '/$1"', $html);
+        $html = preg_replace('#"/system/(.+)"#', '"//europa.nasa.gov/system/$1"', $html);
+    }*/
+    
+     if (strpos($html, '.nasa.gov') !== false) {
+        //$html= preg_replace('#href="/(.+)"#', 'href="preview?='. $url . '/$1"', $html);
+        $html = preg_replace('#"/system/(.+)"#', '"' . getHostFromUrl($url) . '/system/$1"', $html);
+    }
+
+    echo "<!-- Proxified page constructed by proxy -->\n" . $html;
 } else if (stripos($contentType, "text/css") !== false) { //This is CSS, so proxify url() references.
     echo proxifyCSS($responseBody, $url);
 } else { //This isn't a web page or CSS, so serve unmodified through the proxy with the correct headers (images, JavaScript, etc.)

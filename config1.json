@@ -1,0 +1,60 @@
+	{
+	"minSizes":{
+		"video": {
+			"width": 300
+		},
+		"commentIframe": {
+			"width": 200,
+			"height": 200
+		},
+		"browserIframe": {
+		 	"width": 910,
+		 	"height": 200
+		}
+	},
+	"smartRelayout":{
+		"minVideoAspectRatio": 0.5,
+		"maxVideoAspectRatio": 2
+	},
+	"smartRelayoutBoundary": "50%",
+	"videoAspectRatio":{
+		"width": 16,
+		"height": 9
+	},
+	"videos": [
+		{
+			"id": "-My0QzrWdSc",
+			"name": "Orchestra with images on screen"
+		},
+		{
+			"id": "4Tr0otuiQuU",
+			"name": "Beethoven Moonlight Sonata"
+		},
+		{
+			"id": "GueGYdePOXc",
+			"name": "Images only"
+		}
+	],
+	"commentariesBaseUrl": "./commentaries",
+	"commentaries": [
+		{
+			"url": "/com0-base.html",
+			"name": "Base",
+			"description": "This description of the base commentary is not seen by the user",
+			"type": "com0"
+		},
+		{
+			"url": "/com-test1.html",
+			"name": "Test1",
+			"description": "Test 1 Description",
+			"type": "music"
+		},
+		{
+			"url": "/com-test2.html",
+			"name": "Test2",
+			"description": "Test 2 Description",
+			"type": "science"
+		}
+
+	]
+}

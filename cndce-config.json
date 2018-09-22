@@ -76,12 +76,6 @@
 			"type": "musiccomp"
 		},
 		{
-			"url": "/com-musicperf.html",
-			"name": "Music Performance",
-			"description": "Musical Performance - hear from musicians in each orchestra section",
-			"type": "musicperf"
-		},
-		{
 			"url": "/com-perftech.html",
 			"name": "Performance Tech",
 			"description": "Performance Technology - how the visuals were performed live",
